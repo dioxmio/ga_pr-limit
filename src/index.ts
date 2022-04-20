@@ -23,7 +23,7 @@ async function run () {
         }
     `)
 
-    console.log('finished');
+    console.log('updated');
     console.log(data);
 }
 
