@@ -19,13 +19,12 @@ async function run () {
 
     const queryStr = `repo:${context.repo.owner}/${context.repo.repo} is:open is:pr author:${context.actor}`;
 
-    console.log(`parsed string ${parse(queryStr)}`);
-
     const dataS = await octokit.search.issuesAndPullRequests({
-        q: `${parse(queryStr)}`
+        q: queryStr.replace(/\s/g, '+')
     });
 
-    console.log(dataS);
+    console.log('worked')
+    console.log(dataS)
 
     const data: SearchQuery = await octokit.graphql(`
         query currentPRs($queryStr: String!) {
