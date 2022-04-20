@@ -13,7 +13,7 @@ async function run () {
     const { context } = github;
     const { pull_request } = context.payload;
 
-    const data = await octokit.graphql(`
+    const data = await octokit.graphql(`{
         viewer {
             repository(name: "ga_pr-limit") {
                 pullRequests {
@@ -21,7 +21,7 @@ async function run () {
                 }
             }
         }
-    `)
+    }`)
 
     console.log('updated');
     console.log(data);
