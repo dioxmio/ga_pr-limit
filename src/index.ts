@@ -10,7 +10,7 @@ interface SearchQuery {
 
 let octokit: Octokit;
 
-function getOctokit() {
+function getClient() {
     const GITHUB_TOKEN = core.getInput("GITHUB_TOKEN");
 
     if (octokit) {
@@ -25,14 +25,14 @@ function getOctokit() {
 async function takeActions() {
     const { context } = github;
 
-    await getOctokit().pulls.update({
+    await getClient().pulls.update({
         owner: context.repo.owner,
         repo: context.repo.repo,
         pull_number: context.issue.number,
         state: 'closed'
     });
 
-    await getOctokit().issues.createComment({
+    await getClient().issues.createComment({
         owner: context.repo.owner,
         repo: context.repo.repo,
         issue_number: context.issue.number,
@@ -49,7 +49,7 @@ async function reachedLimitPRs() {
 
     const queryStr = `repo:${context.repo.owner}/${context.repo.repo} is:open is:pr author:${context.actor}`;
 
-    const data: SearchQuery = await getOctokit().graphql(`
+    const data: SearchQuery = await getClient().graphql(`
         query currentPRs($queryStr: String!) {
             search(query: $queryStr, type: ISSUE) {
                 issueCount
