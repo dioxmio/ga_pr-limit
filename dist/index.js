@@ -8415,19 +8415,24 @@ function getClient() {
 function takeActions() {
     return __awaiter(this, void 0, void 0, function* () {
         const { context } = github;
+        const MAX_PRS = core.getInput("MAX_PRS");
+        const message = `You reached the limit of ${MAX_PRS} PRS`;
+        // closing the PR
         yield getClient().pulls.update({
             owner: context.repo.owner,
             repo: context.repo.repo,
             pull_number: context.issue.number,
             state: 'closed'
         });
+        // adding an explanatory comment
         yield getClient().issues.createComment({
             owner: context.repo.owner,
             repo: context.repo.repo,
             issue_number: context.issue.number,
-            body: 'You reach the maximum number of open PRS'
+            body: message
         });
-        core.setFailed('You reach the maxium number of PRs');
+        // exist and make the action fail
+        core.setFailed(message);
         process.exit(1);
     });
 }
@@ -8435,6 +8440,7 @@ function reachedLimitPRs() {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
         const { context } = github;
+        const MAX_PRS = core.getInput("MAX_PRS") || 10;
         const queryStr = `repo:${context.repo.owner}/${context.repo.repo} is:open is:pr author:${context.actor}`;
         const data = yield getClient().graphql(`
         query currentPRs($queryStr: String!) {
@@ -8445,7 +8451,6 @@ function reachedLimitPRs() {
     `, {
             queryStr
         });
-        const MAX_PRS = core.getInput("MAX_PRS") || 10;
         return ((_a = data === null || data === void 0 ? void 0 : data.search) === null || _a === void 0 ? void 0 : _a.issueCount) > MAX_PRS;
     });
 }
