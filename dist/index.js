@@ -8341,19 +8341,14 @@ const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const core_1 = __nccwpck_require__(6762);
 function run() {
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         const GITHUB_TOKEN = core.getInput("GITHUB_TOKEN");
         const octokit = new core_1.Octokit({
             auth: GITHUB_TOKEN,
         });
         const { context } = github;
-        /*const graphqlWithAuth = octokit.graphql.defaults({
-            headers: {
-              authorization: `token ${GITHUB_TOKEN}`,
-            },
-        });*/
         const queryStr = `repo:${context.repo.owner}/${context.repo.repo} is:open is:pr author:${context.actor}`;
-        console.log(queryStr);
         const data = yield octokit.graphql(`
         query currentPRs($queryStr: String!) {
             search(query: $queryStr, type: ISSUE) {
@@ -8363,7 +8358,13 @@ function run() {
     `, {
             queryStr
         });
+        const MAX_PRS = core.getInput("MAX_PRS") || 10;
+        if (((_a = data === null || data === void 0 ? void 0 : data.search) === null || _a === void 0 ? void 0 : _a.issueCount) > MAX_PRS) {
+            core.setFailed('You reach the maxium number of PRs');
+            process.exit(1);
+        }
         console.log('updated');
+        console.log('x', octokit.issues);
         console.log(data);
     });
 }

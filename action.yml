@@ -5,6 +5,9 @@ inputs:
   GITHUB_TOKEN:
     description: 'GitHub token'
     required: true
+  MAX_PRS:
+    description: 'maximum number of PRs allowed'
+    required: true
 
 runs:
   using: 'node12'
