@@ -8407,8 +8407,7 @@ function run() {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
         const GITHUB_TOKEN = core.getInput("GITHUB_TOKEN");
-        const octokit = github.getOctokit(GITHUB_TOKEN);
-        const octokitRest = new rest_1.Octokit({ auth: GITHUB_TOKEN });
+        const octokit = new rest_1.Octokit({ auth: GITHUB_TOKEN });
         const { context } = github;
         const queryStr = `repo:${context.repo.owner}/${context.repo.repo} is:open is:pr author:${context.actor}`;
         const data = yield octokit.graphql(`
@@ -8422,13 +8421,13 @@ function run() {
         });
         const MAX_PRS = core.getInput("MAX_PRS") || 10;
         if (((_a = data === null || data === void 0 ? void 0 : data.search) === null || _a === void 0 ? void 0 : _a.issueCount) > MAX_PRS) {
-            yield octokitRest.pulls.update({
+            yield octokit.pulls.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: context.issue.number,
                 state: 'closed'
             });
-            yield octokitRest.issues.createComment({
+            yield octokit.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.issue.number,
