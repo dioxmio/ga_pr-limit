@@ -1,5 +1,5 @@
-import * as core from '@actions/core';
-import * as github from "@actions/github";
+import core from '@actions/core';
+import github from "@actions/github";
 import { Octokit } from '@octokit/rest';
 
 interface SearchQuery {
@@ -22,9 +22,29 @@ function getOctokit() {
     return octokit;
 }
 
+async function takeActions() {
+    const { context } = github;
 
+    await getOctokit().pulls.update({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        pull_number: context.issue.number,
+        state: 'closed'
+    });
 
-async function run () {
+    await getOctokit().issues.createComment({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        issue_number: context.issue.number,
+        body: 'You reach the maximum number of open PRS'
+    })
+
+    core.setFailed('You reach the maxium number of PRs');
+    
+    process.exit(1);
+} 
+
+async function reachedLimitPRs() {
     const { context } = github;
 
     const queryStr = `repo:${context.repo.owner}/${context.repo.repo} is:open is:pr author:${context.actor}`;
@@ -41,28 +61,13 @@ async function run () {
 
     const MAX_PRS = core.getInput("MAX_PRS") || 10;
     
-    if (data?.search?.issueCount > MAX_PRS) {
-        await getOctokit().pulls.update({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            pull_number: context.issue.number,
-            state: 'closed'
-        });
+    return data?.search?.issueCount > MAX_PRS;
+}
 
-        await getOctokit().issues.createComment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: context.issue.number,
-            body: 'You reach the maximum number of open PRS'
-        })
-
-        core.setFailed('You reach the maxium number of PRs');
-        
-        process.exit(1);
+async function run () {
+    if (await reachedLimitPRs()) {
+        takeActions();
     }
-
-    console.log('updated');
-    console.log(data);
 }
 
 run();
