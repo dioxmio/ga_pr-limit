@@ -8339,16 +8339,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
+const core_1 = __nccwpck_require__(6762);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log('method invoked');
         const GITHUB_TOKEN = core.getInput("GITHUB_TOKEN");
-        console.log('token');
-        console.log(GITHUB_TOKEN);
-        const octokit = github.getOctokit(GITHUB_TOKEN);
+        const octokit = new core_1.Octokit({
+            auth: GITHUB_TOKEN,
+        });
         const { context } = github;
         const { pull_request } = context.payload;
+        const data = yield octokit.graphql(`
+        viewer {
+            repository(name: "ga_pr-limit") {
+                pullRequests {
+                    totalCount
+                }
+            }
+        }
+    `);
         console.log('finished');
+        console.log(data);
     });
 }
 run();
