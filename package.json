@@ -1,0 +1,34 @@
+{
+  "name": "ga_pr-limit",
+  "version": "1.0.0",
+  "description": "limits the number of PRs any team member can open",
+  "main": "src/index.ts",
+  "scripts": {
+    "dist": "ncc build src/index.ts -o dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dioxmio/ga_pr-limit.git"
+  },
+  "keywords": [
+    "github",
+    "actions",
+    "code",
+    "owners"
+  ],
+  "author": "Jose Granja",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dioxmio/ga_pr-limit/issues"
+  },
+  "homepage": "https://github.com/dioxmio/ga_pr-limit#readme",
+  "devDependencies": {
+    "@vercel/ncc": "^0.33.4",
+    "typescript": "^4.6.3"
+  },
+  "dependencies": {
+    "@actions/core": "^1.6.0",
+    "@actions/github": "^5.0.1",
+    "js-yaml": "^4.1.0"
+  }
+}

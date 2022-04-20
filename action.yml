@@ -1,0 +1,11 @@
+name: 'PR Limit'
+description: 'Limits the creation of PRs to improve productivity and awarness'
+
+inputs:
+  GITHUB_TOKEN:
+    description: 'GitHub token'
+    required: true
+
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
