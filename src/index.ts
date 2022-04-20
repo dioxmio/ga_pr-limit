@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as github from "@actions/github";
 import { Octokit } from '@octokit/rest';
-
+import { parse } from 'query-string';
 
 interface SearchQuery {
     search:  {
@@ -18,6 +18,14 @@ async function run () {
     const { context } = github;
 
     const queryStr = `repo:${context.repo.owner}/${context.repo.repo} is:open is:pr author:${context.actor}`;
+
+    console.log(`parsed string ${parse(queryStr)}`);
+
+    const dataS = await octokit.search.issuesAndPullRequests({
+        q: `${parse(queryStr)}`
+    });
+
+    console.log(dataS);
 
     const data: SearchQuery = await octokit.graphql(`
         query currentPRs($queryStr: String!) {
