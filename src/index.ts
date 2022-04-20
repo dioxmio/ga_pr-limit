@@ -1,7 +1,6 @@
 import * as core from '@actions/core';
 import * as github from "@actions/github";
-import { Octokit } from "@octokit/core";
-import { graphql } from "@octokit/graphql";
+import { Octokit } from '@octokit/rest';
 
 
 interface SearchQuery {
@@ -13,9 +12,8 @@ interface SearchQuery {
 async function run () {
     const GITHUB_TOKEN = core.getInput("GITHUB_TOKEN");
 
-    const octokit = new Octokit({
-        auth: GITHUB_TOKEN,
-    });
+    const octokit = github.getOctokit(GITHUB_TOKEN);
+    const octokitRest = new Octokit({ auth: GITHUB_TOKEN })
 
     const { context } = github;
 
@@ -34,14 +32,19 @@ async function run () {
     const MAX_PRS = core.getInput("MAX_PRS") || 10;
     
     if (data?.search?.issueCount > MAX_PRS) {
+        await octokitRest.pulls.update({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.issue.number,
+            state: 'closed'
+        });
+
         core.setFailed('You reach the maxium number of PRs');
-        
         
         process.exit(1);
     }
 
     console.log('updated');
-    console.log('x', (octokit as any).issues);
     console.log(data);
 }
 
