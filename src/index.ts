@@ -32,7 +32,7 @@ async function run () {
     const MAX_PRS = core.getInput("MAX_PRS") || 10;
     
     if (data?.search?.issueCount > MAX_PRS) {
-        await (octokit as any).pulls.update({
+        await octokitRest.pulls.update({
             owner: context.repo.owner,
             repo: context.repo.repo,
             pull_number: context.issue.number,

@@ -8422,7 +8422,7 @@ function run() {
         });
         const MAX_PRS = core.getInput("MAX_PRS") || 10;
         if (((_a = data === null || data === void 0 ? void 0 : data.search) === null || _a === void 0 ? void 0 : _a.issueCount) > MAX_PRS) {
-            yield octokit.pulls.update({
+            yield octokitRest.pulls.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: context.issue.number,
