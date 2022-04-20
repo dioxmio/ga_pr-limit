@@ -23,9 +23,11 @@ async function run () {
 
     const data = await octokit.graphql(`
         query currentPRs($owner: String!, $repo: String!) {
-            repository(owner: $owner, name: $repo) {
-                pullRequests {
-                    totalCount
+            viewer {
+                repository(name: $repo) {
+                    pullRequests {
+                        totalCount
+                    }
                 }
             }
         }
