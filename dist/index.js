@@ -8403,20 +8403,21 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const rest_1 = __nccwpck_require__(5375);
+let octokit;
+function getOctokit() {
+    const GITHUB_TOKEN = core.getInput("GITHUB_TOKEN");
+    if (octokit) {
+        return octokit;
+    }
+    octokit = new rest_1.Octokit({ auth: GITHUB_TOKEN });
+    return octokit;
+}
 function run() {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
-        const GITHUB_TOKEN = core.getInput("GITHUB_TOKEN");
-        const octokit = new rest_1.Octokit({ auth: GITHUB_TOKEN });
         const { context } = github;
         const queryStr = `repo:${context.repo.owner}/${context.repo.repo} is:open is:pr author:${context.actor}`;
-        const queryStr2 = `repo:lingoda/lingoda is:open is:pr author:${context.actor}`;
-        const dataS = yield octokit.search.issuesAndPullRequests({
-            q: queryStr2.replace(/\s/g, '+')
-        });
-        console.log('worked');
-        console.log(dataS);
-        const data = yield octokit.graphql(`
+        const data = yield getOctokit().graphql(`
         query currentPRs($queryStr: String!) {
             search(query: $queryStr, type: ISSUE) {
                 issueCount
@@ -8427,13 +8428,13 @@ function run() {
         });
         const MAX_PRS = core.getInput("MAX_PRS") || 10;
         if (((_a = data === null || data === void 0 ? void 0 : data.search) === null || _a === void 0 ? void 0 : _a.issueCount) > MAX_PRS) {
-            yield octokit.pulls.update({
+            yield getOctokit().pulls.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: context.issue.number,
                 state: 'closed'
             });
-            yield octokit.issues.createComment({
+            yield getOctokit().issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.issue.number,

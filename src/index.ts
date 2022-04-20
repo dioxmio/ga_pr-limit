@@ -1,7 +1,6 @@
 import * as core from '@actions/core';
 import * as github from "@actions/github";
 import { Octokit } from '@octokit/rest';
-import { parse } from 'query-string';
 
 interface SearchQuery {
     search:  {
@@ -9,27 +8,28 @@ interface SearchQuery {
     }
 }
 
-async function run () {
+let octokit: Octokit;
+
+function getOctokit() {
     const GITHUB_TOKEN = core.getInput("GITHUB_TOKEN");
-    const octokit = new Octokit({ auth: GITHUB_TOKEN })
 
-    
+    if (octokit) {
+        return octokit;
+    }    
 
+    octokit = new Octokit({ auth: GITHUB_TOKEN })
+
+    return octokit;
+}
+
+
+
+async function run () {
     const { context } = github;
 
     const queryStr = `repo:${context.repo.owner}/${context.repo.repo} is:open is:pr author:${context.actor}`;
 
-
-    const queryStr2 = `repo:lingoda/lingoda is:open is:pr author:${context.actor}`;
-
-    const dataS = await octokit.search.issuesAndPullRequests({
-        q: queryStr2.replace(/\s/g, '+')
-    });
-
-    console.log('worked')
-    console.log(dataS)
-
-    const data: SearchQuery = await octokit.graphql(`
+    const data: SearchQuery = await getOctokit().graphql(`
         query currentPRs($queryStr: String!) {
             search(query: $queryStr, type: ISSUE) {
                 issueCount
@@ -42,14 +42,14 @@ async function run () {
     const MAX_PRS = core.getInput("MAX_PRS") || 10;
     
     if (data?.search?.issueCount > MAX_PRS) {
-        await octokit.pulls.update({
+        await getOctokit().pulls.update({
             owner: context.repo.owner,
             repo: context.repo.repo,
             pull_number: context.issue.number,
             state: 'closed'
         });
 
-        await octokit.issues.createComment({
+        await getOctokit().issues.createComment({
             owner: context.repo.owner,
             repo: context.repo.repo,
             issue_number: context.issue.number,
