@@ -8422,11 +8422,17 @@ function run() {
         });
         const MAX_PRS = core.getInput("MAX_PRS") || 10;
         if (((_a = data === null || data === void 0 ? void 0 : data.search) === null || _a === void 0 ? void 0 : _a.issueCount) > MAX_PRS) {
-            yield octokitRest.pulls.update({
+            yield octokit.pulls.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: context.issue.number,
                 state: 'closed'
+            });
+            yield octokitRest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: 'You reach the maximum number of open PRS'
             });
             core.setFailed('You reach the maxium number of PRs');
             process.exit(1);

@@ -32,12 +32,19 @@ async function run () {
     const MAX_PRS = core.getInput("MAX_PRS") || 10;
     
     if (data?.search?.issueCount > MAX_PRS) {
-        await octokitRest.pulls.update({
+        await (octokit as any).pulls.update({
             owner: context.repo.owner,
             repo: context.repo.repo,
             pull_number: context.issue.number,
             state: 'closed'
         });
+
+        await octokitRest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            body: 'You reach the maximum number of open PRS'
+        })
 
         core.setFailed('You reach the maxium number of PRs');
         
