@@ -5,6 +5,7 @@ import { graphql } from "@octokit/graphql";
 
 
 
+
 async function run () {
     const GITHUB_TOKEN = core.getInput("GITHUB_TOKEN");
     const octokit = new Octokit({
@@ -12,7 +13,7 @@ async function run () {
     });
 
     const { context } = github;
-    const { pull_request } = context.payload;
+    
 
     /*const graphqlWithAuth = octokit.graphql.defaults({
         headers: {
@@ -21,22 +22,19 @@ async function run () {
     });*/
     
 
+    const queryStr = `repo:${context.repo.owner}/${context.repo.repo} is:open is:pr author:${context.actor}`;
+
+    console.log(queryStr);
+
     const data = await octokit.graphql(`
-        query currentPRs($owner: String!, $repo: String!) {
-            viewer {
-                repository(name: $repo) {
-                    pullRequests {
-                        totalCount
-                    }
-                }
+        query currentPRs($queryStr: String!) {
+            search(query: $queryStr, type: ISSUE) {
+                issueCount
             }
         }
     `, {
-        owner: context.repo.owner,
-        repo: context.repo.repo
+        queryStr
     });
-
-    
 
     console.log('updated');
     console.log(data);

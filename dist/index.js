@@ -8347,25 +8347,21 @@ function run() {
             auth: GITHUB_TOKEN,
         });
         const { context } = github;
-        const { pull_request } = context.payload;
         /*const graphqlWithAuth = octokit.graphql.defaults({
             headers: {
               authorization: `token ${GITHUB_TOKEN}`,
             },
         });*/
+        const queryStr = `repo:${context.repo.owner}/${context.repo.repo} is:open is:pr author:${context.actor}`;
+        console.log(queryStr);
         const data = yield octokit.graphql(`
-        query currentPRs($owner: String!, $repo: String!) {
-            viewer {
-                repository(name: $repo) {
-                    pullRequests {
-                        totalCount
-                    }
-                }
+        query currentPRs($queryStr: String!) {
+            search(query: $queryStr, type: ISSUE) {
+                issueCount
             }
         }
     `, {
-            owner: context.repo.owner,
-            repo: context.repo.repo
+            queryStr
         });
         console.log('updated');
         console.log(data);
