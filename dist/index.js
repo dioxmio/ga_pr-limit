@@ -8348,15 +8348,23 @@ function run() {
         });
         const { context } = github;
         const { pull_request } = context.payload;
-        const data = yield octokit.graphql(`{
-        viewer {
-            repository(name: "ga_pr-limit") {
+        /*const graphqlWithAuth = octokit.graphql.defaults({
+            headers: {
+              authorization: `token ${GITHUB_TOKEN}`,
+            },
+        });*/
+        const data = yield octokit.graphql(`
+        query currentPRs($owner: String!, $repo: String!) {
+            repository(owner: $owner, name: $repo) {
                 pullRequests {
                     totalCount
                 }
             }
         }
-    }`);
+    `, {
+            owner: context.repo.owner,
+            repo: context.repo.repo
+        });
         console.log('updated');
         console.log(data);
     });
