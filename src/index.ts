@@ -5,7 +5,7 @@ import * as github from '@actions/github';
 async function run () {
     console.log('method invoked');
 
-    const GITHUB_TOKEN = core.getInput("token");
+    const GITHUB_TOKEN = core.getInput("GITHUB_TOKEN");
 
     console.log('token');
     console.log(GITHUB_TOKEN);

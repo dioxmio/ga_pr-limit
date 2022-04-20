@@ -8342,7 +8342,7 @@ const github = __importStar(__nccwpck_require__(5438));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('method invoked');
-        const GITHUB_TOKEN = core.getInput("token");
+        const GITHUB_TOKEN = core.getInput("GITHUB_TOKEN");
         console.log('token');
         console.log(GITHUB_TOKEN);
         const octokit = github.getOctokit(GITHUB_TOKEN);
