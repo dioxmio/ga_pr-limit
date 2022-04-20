@@ -8343,6 +8343,8 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         console.log('method invoked');
         const GITHUB_TOKEN = core.getInput("token");
+        console.log('token');
+        console.log(GITHUB_TOKEN);
         const octokit = github.getOctokit(GITHUB_TOKEN);
         const { context } = github;
         const { pull_request } = context.payload;
