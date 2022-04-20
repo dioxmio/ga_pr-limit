@@ -8410,8 +8410,9 @@ function run() {
         const octokit = new rest_1.Octokit({ auth: GITHUB_TOKEN });
         const { context } = github;
         const queryStr = `repo:${context.repo.owner}/${context.repo.repo} is:open is:pr author:${context.actor}`;
+        const queryStr2 = `repo:lingoda/lingoda is:open is:pr author:${context.actor}`;
         const dataS = yield octokit.search.issuesAndPullRequests({
-            q: queryStr.replace(/\s/g, '+')
+            q: queryStr2.replace(/\s/g, '+')
         });
         console.log('worked');
         console.log(dataS);
