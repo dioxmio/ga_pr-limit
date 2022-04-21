@@ -11,7 +11,7 @@ If an author exceeds that limit the PR will be automatically closed and a commen
 |:--------|:-----------------------------------------|:---------|:----------------|:------------------|
 | `GITHUB_TOKEN` | GitHub token                         | `true`   | -             | `string`   |
 | `MAX_PRS` | Max number of PRs per actor               | `true`   | -             | `string`   |
-| `EXCLUDE_AUTHORS` | Excluding actors form limit       | `false`  | -             | `string`   |
+| `EXCLUDE` | Excluding actors form limit       | `false`  | -             | `string`   |
 
 ## Example
 

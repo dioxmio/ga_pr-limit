@@ -8,7 +8,7 @@ inputs:
   MAX_PRS:
     description: 'maximum number of PRs allowed'
     required: true
-  EXCLUDE_AUTHORS:
+  EXCLUDE:
     description: 'a common separated list of authors'
     required: false
 
