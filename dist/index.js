@@ -8412,41 +8412,25 @@ function getClient() {
     octokit = new rest_1.Octokit({ auth: GITHUB_TOKEN });
     return octokit;
 }
-function takeActions() {
+function takeActions(prId) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { context } = github;
         const MAX_PRS = core.getInput("MAX_PRS");
         const message = `You reached the limit of ${MAX_PRS} PRS`;
-        // getting the PR ID indentifier
-        const data = yield getClient().graphql(`
-        query($name: String!, $owner: String!, $issue: Int!) {
-            repository(name: $name, owner: $owner) {
-                pullRequest(number: $issue) {
-                    id
-                }
-            }
-        }
-    `, {
-            name: context.repo.repo,
-            owner: context.repo.owner,
-            issue: context.issue.number,
-        });
-        console.log(data);
         // adding comment + closing PR
         yield getClient().graphql(`
-        mutation($id: ID!) {
+        mutation($id: ID!, $body: String!) {
             closePullRequest(input: { pullRequestId: $id}) {
                 pullRequest {
                     url
                 } 
             }
             
-            addComment(input: { body: "xxx", subjectId: $id}) {
+            addComment(input: { body: $body, subjectId: $id}) {
                 clientMutationId
             }
         }
     `, {
-            id: data.repository.pullRequest.id,
+            id: prId,
             body: message
         });
         // exist and make the action fail
@@ -8454,12 +8438,12 @@ function takeActions() {
         process.exit(1);
     });
 }
-function reachedLimitPRs() {
+function reachedLimitPRs(actor) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
         const { context } = github;
         const MAX_PRS = core.getInput("MAX_PRS") || 10;
-        const queryStr = `repo:${context.repo.owner}/${context.repo.repo} is:open is:pr author:${context.actor}`;
+        const queryStr = `repo:${context.repo.owner}/${context.repo.repo} is:open is:pr author:${actor}`;
         const data = yield getClient().graphql(`
         query currentPRs($queryStr: String!) {
             search(query: $queryStr, type: ISSUE) {
@@ -8472,10 +8456,43 @@ function reachedLimitPRs() {
         return ((_a = data === null || data === void 0 ? void 0 : data.search) === null || _a === void 0 ? void 0 : _a.issueCount) > MAX_PRS;
     });
 }
+function getPRInfo() {
+    var _a, _b, _c, _d, _e;
+    return __awaiter(this, void 0, void 0, function* () {
+        const { context } = github;
+        const data = yield getClient().graphql(`
+        query($name: String!, $owner: String!, $issue: Int!) {
+            repository(name: $name, owner: $owner) {
+                pullRequest(number: $issue) {
+                    id,
+                    author {
+                        login
+                    }
+                }
+            }
+        }
+    `, {
+            name: context.repo.repo,
+            owner: context.repo.owner,
+            issue: context.issue.number,
+        });
+        const prId = (_b = (_a = data === null || data === void 0 ? void 0 : data.repository) === null || _a === void 0 ? void 0 : _a.pullRequest) === null || _b === void 0 ? void 0 : _b.id;
+        const login = (_e = (_d = (_c = data === null || data === void 0 ? void 0 : data.repository) === null || _c === void 0 ? void 0 : _c.pullRequest) === null || _d === void 0 ? void 0 : _d.autor) === null || _e === void 0 ? void 0 : _e.login;
+        if (!prId || !login) {
+            core.setFailed('failed to get info from PR');
+            process.exit(1);
+        }
+        return {
+            prId,
+            login
+        };
+    });
+}
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        if (yield reachedLimitPRs()) {
-            takeActions();
+        const info = yield getPRInfo();
+        if (yield reachedLimitPRs(info.login)) {
+            takeActions(info.prId);
         }
     });
 }

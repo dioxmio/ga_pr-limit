@@ -8,14 +8,6 @@ interface SearchQuery {
     }
 }
 
-interface PullRequestIdQuery {
-    repository:  {
-        pullRequest: {
-            id: string;
-        }
-    }
-}
-
 let octokit: Octokit;
 
 function getClient() {
@@ -29,44 +21,26 @@ function getClient() {
     return octokit;
 }
 
-async function takeActions() {
-    const { context } = github;
+async function takeActions(prId: string) {
     const MAX_PRS = core.getInput("MAX_PRS");
 
     const message = `You reached the limit of ${MAX_PRS} PRS`
     
-    // getting the PR ID indentifier
-    const data: PullRequestIdQuery = await getClient().graphql(`
-        query($name: String!, $owner: String!, $issue: Int!) {
-            repository(name: $name, owner: $owner) {
-                pullRequest(number: $issue) {
-                    id
-                }
-            }
-        }
-    `, {
-        name: context.repo.repo,
-        owner: context.repo.owner,
-        issue: context.issue.number,
-    });
-
-    console.log(data);
-
     // adding comment + closing PR
     await getClient().graphql(`
-        mutation($id: ID!) {
+        mutation($id: ID!, $body: String!) {
             closePullRequest(input: { pullRequestId: $id}) {
                 pullRequest {
                     url
                 } 
             }
             
-            addComment(input: { body: "xxx", subjectId: $id}) {
+            addComment(input: { body: $body, subjectId: $id}) {
                 clientMutationId
             }
         }
     `, {
-        id: data.repository.pullRequest.id,
+        id: prId,
         body: message
     });
 
@@ -75,11 +49,11 @@ async function takeActions() {
     process.exit(1);
 } 
 
-async function reachedLimitPRs() {
+async function reachedLimitPRs(actor: string) {
     const { context } = github;
     const MAX_PRS = core.getInput("MAX_PRS") || 10;
 
-    const queryStr = `repo:${context.repo.owner}/${context.repo.repo} is:open is:pr author:${context.actor}`;
+    const queryStr = `repo:${context.repo.owner}/${context.repo.repo} is:open is:pr author:${actor}`;
     const data: SearchQuery = await getClient().graphql(`
         query currentPRs($queryStr: String!) {
             search(query: $queryStr, type: ISSUE) {
@@ -93,9 +67,56 @@ async function reachedLimitPRs() {
     return data?.search?.issueCount > MAX_PRS;
 }
 
+interface PullRequestIdQuery {
+    repository:  {
+        pullRequest: {
+            id: string;
+            autor: {
+                login: string;
+            }
+        }
+    }
+}
+async function getPRInfo() {
+    const { context } = github;
+    
+    const data: PullRequestIdQuery = await getClient().graphql(`
+        query($name: String!, $owner: String!, $issue: Int!) {
+            repository(name: $name, owner: $owner) {
+                pullRequest(number: $issue) {
+                    id,
+                    author {
+                        login
+                    }
+                }
+            }
+        }
+    `, {
+        name: context.repo.repo,
+        owner: context.repo.owner,
+        issue: context.issue.number,
+    });
+
+    const prId = data?.repository?.pullRequest?.id;
+    const login = data?.repository?.pullRequest?.autor?.login;
+
+    if (!prId || !login) {
+        core.setFailed('failed to get info from PR');
+        process.exit(1);
+    }
+
+    return {
+        prId,
+        login
+    }
+}
+
 async function run () {
-    if (await reachedLimitPRs()) {
-        takeActions();
+
+    const info = await getPRInfo();
+
+    if (await reachedLimitPRs(info.login)) {
+        takeActions(info.prId);
     }
 }
 
