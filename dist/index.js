@@ -8433,11 +8433,11 @@ function assertIsIssue() {
     }
 }
 function isExcluded(author) {
-    const EXCLUDE_AUTHORS = core.getInput("EXCLUDE_AUTHORS");
-    if (!EXCLUDE_AUTHORS) {
+    const EXCLUDE = core.getInput("EXCLUDE");
+    if (!EXCLUDE) {
         return false;
     }
-    return EXCLUDE_AUTHORS.replace(/\s/g, '').split(',').includes(author);
+    return EXCLUDE.replace(/\s/g, '').split(',').includes(author);
 }
 function run() {
     return __awaiter(this, void 0, void 0, function* () {

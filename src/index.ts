@@ -121,13 +121,13 @@ function assertIsIssue() {
 }
 
 function isExcluded(author: string) {
-    const EXCLUDE_AUTHORS = core.getInput("EXCLUDE_AUTHORS");
+    const EXCLUDE = core.getInput("EXCLUDE");
 
-    if (!EXCLUDE_AUTHORS) {
+    if (!EXCLUDE) {
         return false;
     }
 
-    return EXCLUDE_AUTHORS.replace(/\s/g, '').split(',').includes(author);
+    return EXCLUDE.replace(/\s/g, '').split(',').includes(author);
 }
 
 async function run () {
