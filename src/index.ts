@@ -63,7 +63,7 @@ async function reachedLimitPRs(actor: string) {
         queryStr
     });
 
-    return data?.search?.issueCount > MAX_PRS;
+    return data?.search?.issueCount >= MAX_PRS;
 }
 
 interface PullRequestIdQuery {

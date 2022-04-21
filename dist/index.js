@@ -8389,7 +8389,7 @@ function reachedLimitPRs(actor) {
     `, {
             queryStr
         });
-        return ((_a = data === null || data === void 0 ? void 0 : data.search) === null || _a === void 0 ? void 0 : _a.issueCount) > MAX_PRS;
+        return ((_a = data === null || data === void 0 ? void 0 : data.search) === null || _a === void 0 ? void 0 : _a.issueCount) >= MAX_PRS;
     });
 }
 function getPRInfo() {
