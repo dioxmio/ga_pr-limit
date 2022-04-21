@@ -71,7 +71,7 @@ interface PullRequestIdQuery {
     repository:  {
         pullRequest: {
             id: string;
-            autor: {
+            author: {
                 login: string;
             }
         }
@@ -97,18 +97,8 @@ async function getPRInfo() {
         issue: context.issue.number,
     });
 
-    console.log('getting data');
-    console.log(data);
-    console.log(JSON.stringify(data));
-    console.log(data.repository.pullRequest.autor);
-    console.log(data.repository.pullRequest.autor.login);
-
-
     const prId = data?.repository?.pullRequest?.id;
-    const login = data?.repository?.pullRequest?.autor?.login;
-
-    console.log('prId', prId);
-    console.log('login', login);
+    const login = data?.repository?.pullRequest?.author?.login;
 
     if (!prId || !login) {
         core.setFailed('failed to get info from PR');

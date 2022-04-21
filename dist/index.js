@@ -8476,15 +8476,8 @@ function getPRInfo() {
             owner: context.repo.owner,
             issue: context.issue.number,
         });
-        console.log('getting data');
-        console.log(data);
-        console.log(JSON.stringify(data));
-        console.log(data.repository.pullRequest.autor);
-        console.log(data.repository.pullRequest.autor.login);
         const prId = (_b = (_a = data === null || data === void 0 ? void 0 : data.repository) === null || _a === void 0 ? void 0 : _a.pullRequest) === null || _b === void 0 ? void 0 : _b.id;
-        const login = (_e = (_d = (_c = data === null || data === void 0 ? void 0 : data.repository) === null || _c === void 0 ? void 0 : _c.pullRequest) === null || _d === void 0 ? void 0 : _d.autor) === null || _e === void 0 ? void 0 : _e.login;
-        console.log('prId', prId);
-        console.log('login', login);
+        const login = (_e = (_d = (_c = data === null || data === void 0 ? void 0 : data.repository) === null || _c === void 0 ? void 0 : _c.pullRequest) === null || _d === void 0 ? void 0 : _d.author) === null || _e === void 0 ? void 0 : _e.login;
         if (!prId || !login) {
             core.setFailed('failed to get info from PR');
             process.exit(1);
