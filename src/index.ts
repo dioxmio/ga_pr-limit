@@ -68,10 +68,10 @@ async function reachedLimitPRs(actor: string) {
 }
 
 interface PullRequestIdQuery {
-    repository:  {
-        pullRequest: {
+    repository?:  {
+        pullRequest?: {
             id: string;
-            author: {
+            author?: {
                 login: string;
             }
         }
@@ -111,7 +111,18 @@ async function getPRInfo() {
     }
 }
 
+function assertIsIssue() {
+    const { context } = github;
+
+    if (!context.issue.number) {
+        // exist and make the action fail
+        core.setFailed(`no issue found, please map action to [opened, reopened] types`);
+        process.exit(1);
+    }
+}
+
 async function run () {
+    assertIsIssue();
 
     const info = await getPRInfo();
 

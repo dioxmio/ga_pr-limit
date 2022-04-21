@@ -8488,8 +8488,17 @@ function getPRInfo() {
         };
     });
 }
+function assertIsIssue() {
+    const { context } = github;
+    if (!context.issue.number) {
+        // exist and make the action fail
+        core.setFailed(`no issue found, please map action to [opened, reopened] types`);
+        process.exit(1);
+    }
+}
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
+        assertIsIssue();
         const info = yield getPRInfo();
         if (yield reachedLimitPRs(info.login)) {
             takeActions(info.prId);
