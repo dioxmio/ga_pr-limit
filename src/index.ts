@@ -120,10 +120,24 @@ function assertIsIssue() {
     }
 }
 
+function isExcluded(author: string) {
+    const EXCLUDE_AUTHORS = core.getInput("EXCLUDE_AUTHORS");
+
+    if (!EXCLUDE_AUTHORS) {
+        return false;
+    }
+
+    return EXCLUDE_AUTHORS.replace(/\s/g, '').split(',').includes(author);
+}
+
 async function run () {
     assertIsIssue();
 
     const info = await getPRInfo();
+
+    if (isExcluded(info.login)) {
+        process.exit(0);
+    }
 
     if (await reachedLimitPRs(info.login)) {
         takeActions(info.prId);

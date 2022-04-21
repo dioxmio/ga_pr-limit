@@ -8432,10 +8432,20 @@ function assertIsIssue() {
         process.exit(1);
     }
 }
+function isExcluded(author) {
+    const EXCLUDE_AUTHORS = core.getInput("EXCLUDE_AUTHORS");
+    if (!EXCLUDE_AUTHORS) {
+        return false;
+    }
+    return EXCLUDE_AUTHORS.replace(/\s/g, '').split(',').includes(author);
+}
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         assertIsIssue();
         const info = yield getPRInfo();
+        if (isExcluded(info.login)) {
+            process.exit(0);
+        }
         if (yield reachedLimitPRs(info.login)) {
             takeActions(info.prId);
         }

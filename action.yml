@@ -1,6 +1,5 @@
 name: 'PR Limit'
 description: 'Limits the creation of PRs to improve productivity and awarness'
-icon: 'alert-circle'
 
 inputs:
   GITHUB_TOKEN:
@@ -9,6 +8,9 @@ inputs:
   MAX_PRS:
     description: 'maximum number of PRs allowed'
     required: true
+  EXCLUDE_AUTHORS:
+    description: 'a common separated list of authors'
+    required: false
 
 runs:
   using: 'node12'
