@@ -1,6 +1,5 @@
 import * as core from '@actions/core';
 import * as github from "@actions/github";
-import { Octokit } from '@octokit/rest';
 
 interface SearchQuery {
     search:  {
@@ -8,7 +7,7 @@ interface SearchQuery {
     }
 }
 
-let octokit: Octokit;
+let octokit: ReturnType<typeof github.getOctokit>;
 
 function getClient() {
     const GITHUB_TOKEN = core.getInput("GITHUB_TOKEN");
@@ -17,7 +16,7 @@ function getClient() {
         return octokit;
     }
 
-    octokit = new Octokit({ auth: GITHUB_TOKEN })
+    octokit = github.getOctokit(GITHUB_TOKEN);
     return octokit;
 }
 
