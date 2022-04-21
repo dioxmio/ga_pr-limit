@@ -29,7 +29,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v3
       - name: PR Limit
-        uses: ./
+        uses: dioxmio/ga_pr-limit@v1.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAX_PRS: 3
