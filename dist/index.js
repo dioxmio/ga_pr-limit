@@ -8431,6 +8431,7 @@ function takeActions() {
             owner: context.repo.owner,
             issue: context.issue.number,
         });
+        console.log(data);
         // adding comment + closing PR
         yield getClient().graphql(`
         mutation($id: ID!) {
@@ -8445,7 +8446,7 @@ function takeActions() {
             }
         }
     `, {
-            id: data.repository.pullRequest.ID,
+            id: data.repository.pullRequest.id,
             body: message
         });
         // exist and make the action fail

@@ -11,7 +11,7 @@ interface SearchQuery {
 interface PullRequestIdQuery {
     repository:  {
         pullRequest: {
-            ID: string;
+            id: string;
         }
     }
 }
@@ -50,6 +50,8 @@ async function takeActions() {
         issue: context.issue.number,
     });
 
+    console.log(data);
+
     // adding comment + closing PR
     await getClient().graphql(`
         mutation($id: ID!) {
@@ -64,7 +66,7 @@ async function takeActions() {
             }
         }
     `, {
-        id: data.repository.pullRequest.ID,
+        id: data.repository.pullRequest.id,
         body: message
     });
 
