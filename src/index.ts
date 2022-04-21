@@ -97,6 +97,9 @@ async function getPRInfo() {
         issue: context.issue.number,
     });
 
+    console.log('getting data');
+    console.log(data);
+
     const prId = data?.repository?.pullRequest?.id;
     const login = data?.repository?.pullRequest?.autor?.login;
 
