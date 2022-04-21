@@ -1,5 +1,6 @@
 name: 'PR Limit'
 description: 'Limits the creation of PRs to improve productivity and awarness'
+icon: 'alert-circle'
 
 inputs:
   GITHUB_TOKEN:
@@ -12,3 +13,7 @@ inputs:
 runs:
   using: 'node12'
   main: 'dist/index.js'
+
+branding:
+  icon: 'alert-triangle'
+  color: 'orange'
