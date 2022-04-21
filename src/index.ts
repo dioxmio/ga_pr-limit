@@ -8,6 +8,14 @@ interface SearchQuery {
     }
 }
 
+interface PullRequestIdQuery {
+    repository:  {
+        pullRequest: {
+            ID: string;
+        }
+    }
+}
+
 let octokit: Octokit;
 
 function getClient() {
@@ -27,21 +35,38 @@ async function takeActions() {
 
     const message = `You reached the limit of ${MAX_PRS} PRS`
     
-    // closing the PR
-    await getClient().pulls.update({
+    // getting the PR ID indentifier
+    const data: PullRequestIdQuery = await getClient().graphql(`
+        query($name: String!, $owner: String!, $issue: Int!) {
+            repository(name: $name, owner: $owner) {
+                pullRequest(number: $issue) {
+                    id
+                }
+            }
+        }
+    `, {
+        name: context.repo.repo,
         owner: context.repo.owner,
-        repo: context.repo.repo,
-        pull_number: context.issue.number,
-        state: 'closed'
+        issue: context.issue.number,
     });
 
-    // adding an explanatory comment
-    await getClient().issues.createComment({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        issue_number: context.issue.number,
+    // adding comment + closing PR
+    await getClient().graphql(`
+        mutation($id: ID!) {
+            closePullRequest(input: { pullRequestId: $id}) {
+                pullRequest {
+                    url
+                } 
+            }
+            
+            addComment(input: { body: "xxx", subjectId: $id}) {
+                clientMutationId
+            }
+        }
+    `, {
+        id: data.repository.pullRequest.ID,
         body: message
-    })
+    });
 
     // exist and make the action fail
     core.setFailed(message);
