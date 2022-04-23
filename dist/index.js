@@ -8427,7 +8427,6 @@ function getPRInfo() {
 function assertIsIssue() {
     const { context } = github;
     if (!context.issue.number) {
-        // exist and make the action fail
         core.setFailed(`no issue found, please map action to [opened, reopened] types`);
         process.exit(1);
     }

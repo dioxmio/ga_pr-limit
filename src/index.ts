@@ -22,7 +22,6 @@ function getClient() {
 
 async function takeActions(prId: string) {
     const MAX_PRS = core.getInput("MAX_PRS");
-
     const message = `You reached the limit of ${MAX_PRS} PRS`
     
     // adding comment + closing PR
@@ -112,9 +111,8 @@ async function getPRInfo() {
 
 function assertIsIssue() {
     const { context } = github;
-
+    
     if (!context.issue.number) {
-        // exist and make the action fail
         core.setFailed(`no issue found, please map action to [opened, reopened] types`);
         process.exit(1);
     }
